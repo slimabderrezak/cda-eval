@@ -1,112 +1,369 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { conversations, matches, profiles } from '@/constants/dating';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import React, { useState } from 'react';
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+const { width } = Dimensions.get('window');
 
-export default function TabTwoScreen() {
+export default function MessagesScreen() {
+  const colorScheme = useColorScheme() ?? 'light';
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [chatModalVisible, setChatModalVisible] = useState(false);
+  const [newMessage, setNewMessage] = useState('');
+
+  const handleConversationPress = (conversation: any) => {
+    setSelectedConversation(conversation);
+    setChatModalVisible(true);
+  };
+
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      // Ici on pourrait ajouter le message à la conversation
+      setNewMessage('');
+    }
+  };
+
+  const formatTime = (timestamp: Date) => {
+    return timestamp.toLocaleTimeString('fr-FR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: Colors[colorScheme].card }]}>
+        <Text style={[styles.title, { color: Colors[colorScheme].text }]}>
+          Messages
+        </Text>
+        <Text style={[styles.subtitle, { color: Colors[colorScheme].icon }]}>
+          {matches.length} matchs • {conversations.length} conversations
+        </Text>
+      </View>
+
+      {/* Matches Section */}
+      <View style={styles.matchesSection}>
+        <Text style={[styles.sectionTitle, { color: Colors[colorScheme].text }]}>
+          Nouveaux matchs
+        </Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {matches.map((match) => {
+            const matchedProfile = profiles.find(p => p.id === match.userId);
+            return matchedProfile ? (
+              <TouchableOpacity key={match.id} style={styles.matchItem}>
+                <Image source={matchedProfile.photos[0]} style={styles.matchAvatar} />
+                <Text style={[styles.matchName, { color: Colors[colorScheme].text }]}>
+                  {matchedProfile.name.split(' ')[0]}
+                </Text>
+              </TouchableOpacity>
+            ) : null;
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Conversations List */}
+      <ScrollView style={styles.conversationsList}>
+        <Text style={[styles.sectionTitle, { color: Colors[colorScheme].text }]}>
+          Conversations
+        </Text>
+        {conversations.map((conversation) => {
+          const otherProfile = profiles.find(p => p.id === conversation.participants.find(id => id !== "1"));
+          const lastMessage = conversation.messages[conversation.messages.length - 1];
+          
+          return otherProfile ? (
+            <TouchableOpacity 
+              key={conversation.id}
+              style={[styles.conversationItem, { backgroundColor: Colors[colorScheme].card }]}
+              onPress={() => handleConversationPress(conversation)}
+            >
+              <Image source={otherProfile.photos[0]} style={styles.conversationAvatar} />
+              <View style={styles.conversationContent}>
+                <View style={styles.conversationHeader}>
+                  <Text style={[styles.conversationName, { color: Colors[colorScheme].text }]}>
+                    {otherProfile.name}
+                  </Text>
+                  <Text style={[styles.conversationTime, { color: Colors[colorScheme].icon }]}>
+                    {formatTime(lastMessage.timestamp)}
+                  </Text>
+                </View>
+                <Text 
+                  style={[styles.lastMessage, { color: Colors[colorScheme].icon }]}
+                  numberOfLines={1}
+                >
+                  {lastMessage.content}
+                </Text>
+              </View>
+              {!lastMessage.isRead && (
+                <View style={[styles.unreadIndicator, { backgroundColor: Colors[colorScheme].primary }]} />
+              )}
+            </TouchableOpacity>
+          ) : null;
         })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </ScrollView>
+
+      {/* Chat Modal */}
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={chatModalVisible}
+        onRequestClose={() => setChatModalVisible(false)}
+      >
+        {selectedConversation && (
+          <SafeAreaView style={[styles.chatContainer, { backgroundColor: Colors[colorScheme].background }]}>
+            {/* Chat Header */}
+            <View style={[styles.chatHeader, { backgroundColor: Colors[colorScheme].card }]}>
+              <TouchableOpacity 
+                onPress={() => setChatModalVisible(false)}
+                style={styles.backButton}
+              >
+                <Text style={[styles.backText, { color: Colors[colorScheme].primary }]}>← Retour</Text>
+              </TouchableOpacity>
+              {(() => {
+                const otherProfile = profiles.find(p => 
+                  p.id === selectedConversation.participants.find((id: string) => id !== "1")
+                );
+                return otherProfile ? (
+                  <View style={styles.chatHeaderProfile}>
+                    <Image source={otherProfile.photos[0]} style={styles.chatHeaderAvatar} />
+                    <Text style={[styles.chatHeaderName, { color: Colors[colorScheme].text }]}>
+                      {otherProfile.name}
+                    </Text>
+                  </View>
+                ) : null;
+              })()}
+            </View>
+
+            {/* Messages */}
+            <FlatList
+              data={selectedConversation.messages}
+              keyExtractor={(item) => item.id}
+              style={styles.messagesList}
+              renderItem={({ item }) => (
+                <View style={[
+                  styles.messageItem,
+                  item.senderId === "1" ? styles.myMessage : styles.theirMessage
+                ]}>
+                  <Text style={[
+                    styles.messageText,
+                    { 
+                      color: item.senderId === "1" ? 'white' : Colors[colorScheme].text,
+                      backgroundColor: item.senderId === "1" 
+                        ? Colors[colorScheme].primary 
+                        : Colors[colorScheme].card
+                    }
+                  ]}>
+                    {item.content}
+                  </Text>
+                  <Text style={[styles.messageTime, { color: Colors[colorScheme].icon }]}>
+                    {formatTime(item.timestamp)}
+                  </Text>
+                </View>
+              )}
+            />
+
+            {/* Message Input */}
+            <View style={[styles.messageInputContainer, { backgroundColor: Colors[colorScheme].card }]}>
+              <TextInput
+                style={[styles.messageInput, { 
+                  backgroundColor: Colors[colorScheme].background,
+                  color: Colors[colorScheme].text 
+                }]}
+                value={newMessage}
+                onChangeText={setNewMessage}
+                placeholder="Tapez votre message..."
+                placeholderTextColor={Colors[colorScheme].icon}
+                multiline
+              />
+              <TouchableOpacity 
+                style={[styles.sendButton, { backgroundColor: Colors[colorScheme].primary }]}
+                onPress={sendMessage}
+              >
+                <Text style={styles.sendButtonText}>➤</Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        )}
+      </Modal>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  header: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+  },
+  matchesSection: {
+    paddingVertical: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  matchItem: {
+    alignItems: 'center',
+    marginLeft: 20,
+    width: 70,
+  },
+  matchAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 8,
+  },
+  matchName: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  conversationsList: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  conversationItem: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  conversationAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  conversationContent: {
+    flex: 1,
+  },
+  conversationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  conversationName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  conversationTime: {
+    fontSize: 12,
+  },
+  lastMessage: {
+    fontSize: 14,
+  },
+  unreadIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  // Chat Modal Styles
+  chatContainer: {
+    flex: 1,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: 10,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  backText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  chatHeaderProfile: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chatHeaderAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 12,
+  },
+  chatHeaderName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  messagesList: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  messageItem: {
+    marginVertical: 4,
+  },
+  myMessage: {
+    alignItems: 'flex-end',
+  },
+  theirMessage: {
+    alignItems: 'flex-start',
+  },
+  messageText: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    maxWidth: width * 0.75,
+    fontSize: 16,
+  },
+  messageTime: {
+    fontSize: 12,
+    marginTop: 4,
+    paddingHorizontal: 8,
+  },
+  messageInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    padding: 16,
+    gap: 12,
+  },
+  messageInput: {
+    flex: 1,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    maxHeight: 100,
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

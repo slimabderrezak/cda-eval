@@ -5,25 +5,36 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Couleurs basées sur la maquette
+const tintColorLight = '#FF4757'; // Rouge corail principal
+const tintColorDark = '#FF4757';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: '#2C2C2C',
+    background: '#FFE4E6',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: '#8E8E8E',
+    tabIconDefault: '#8E8E8E',
     tabIconSelected: tintColorLight,
+    primary: '#FF4757',
+    secondary: '#FF6B7D',
+    accent: '#FFD6D9',
+    card: '#FFF0F1',
+    border: '#FFB3B8',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#FFFFFF',
+    background: '#2D1B1D',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    primary: '#FF4757',
+    secondary: '#FF6B7D',
+    accent: '#3D2428',
+    card: '#3A2327',
+    border: '#4A2D32',
   },
 };
 

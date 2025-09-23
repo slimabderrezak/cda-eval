@@ -41,17 +41,71 @@ export interface Conversation {
   isActive: boolean;
 }
 
-// Images pour les profils - Toutes utilisent la même image cohérente
-const avatarImage = require('@/assets/images/avatar-marie.png');
+// Images pour les profils - Chaque avatar représente une personne unique et distincte
+// Images d'avatar réelles + nouvelle image Gemini
+const avatarGemini = require('@/assets/images/Gemini_Generated_Image_7vhmpa7vhmpa7vhm.png'); // Nouvelle image générée
+const avatarEmma1 = require('@/assets/images/avatar-emma-1.png');
+const avatarEmma2 = require('@/assets/images/avatar-emma-2.png'); 
+const avatarEmma3 = require('@/assets/images/avatar-emma-3.png');
+const avatarLucas1 = require('@/assets/images/avatar-lucas-1.png');
+const avatarLucas2 = require('@/assets/images/avatar-lucas-2.png');
+const avatarLucas3 = require('@/assets/images/avatar-lucas-3.png');
+const avatarLucas4 = require('@/assets/images/avatar-lucas-4.png');
+const avatarSophie1 = require('@/assets/images/avatar-sophie-1.png');
+const avatarSophie2 = require('@/assets/images/avatar-sophie-2.png');
+const avatarSophie3 = require('@/assets/images/avatar-sophie-3.png');
+const avatarSophie4 = require('@/assets/images/avatar-sophie-4.png');
+const avatarAntoine1 = require('@/assets/images/avatar-antoine-1.png');
+const avatarAntoine2 = require('@/assets/images/avatar-antoine-2.png');
+const avatarAntoine3 = require('@/assets/images/avatar-antoine-3.png');
+const avatarAntoine4 = require('@/assets/images/avatar-antoine-4.png');
+const avatarCamille1 = require('@/assets/images/avatar-camille-1.png');
+const avatarCamille2 = require('@/assets/images/avatar-camille-2.png');
+const avatarCamille3 = require('@/assets/images/avatar-camille-3.png');
+const avatarCamille4 = require('@/assets/images/avatar-camille-4.png');
+const avatarMarie1 = require('@/assets/images/avatar-marie.png');
+const avatarMarie2 = require('@/assets/images/avatar-marie-2.png');
+const avatarMarie3 = require('@/assets/images/avatar-marie-3.png');
+const avatarJulien1 = require('@/assets/images/avatar-julien-1.png');
+const avatarJulien2 = require('@/assets/images/avatar-julien-2.png');
+const avatarJulien3 = require('@/assets/images/avatar-julien-3.png');
+const avatarJulien4 = require('@/assets/images/avatar-julien-4.png');
 
 export const ProfileImages = {
-  user1: avatarImage,
-  user2: avatarImage, // Emma
-  user3: avatarImage, // Lucas
-  user4: avatarImage, // Sophie
-  user5: avatarImage, // Antoine
-  user6: avatarImage, // Camille
-  currentUser: avatarImage, // Utilisateur actuel (Marie)
+  // Emma - Jeune femme artiste de 26 ans, cheveux châtains, style bohème  
+  emma1: avatarGemini, // Photo principale d'Emma (nouvelle image Gemini)
+  emma2: avatarEmma2, // Emma en train de peindre
+  emma3: avatarEmma3, // Emma en tenue de sport
+  
+  // Lucas - Homme de 29 ans, barbe soignée, style casual-chic
+  lucas1: avatarLucas4, // Photo principale de Lucas (avatar-lucas-4.png)
+  lucas2: avatarLucas2, // Lucas avec sa guitare
+  lucas3: avatarLucas3, // Lucas en randonnée
+  
+  // Sophie - Jeune femme de 24 ans, blonde, look naturel et zen
+  sophie1: avatarSophie4, // Photo principale de Sophie (avatar-sophie-4.png)
+  sophie2: avatarSophie2, // Sophie en séance yoga
+  sophie3: avatarSophie3, // Sophie en blouse médicale
+  
+  // Antoine - Homme sportif de 31 ans, musclé, sourire éclatant
+  antoine1: avatarAntoine4, // Photo principale d'Antoine (avatar-antoine-4.png)
+  antoine2: avatarAntoine2, // Antoine à la salle de sport
+  antoine3: avatarAntoine3, // Antoine en voyage
+  
+  // Camille - Femme élégante de 27 ans, rousse, style sophistiqué
+  camille1: avatarCamille4, // Photo principale de Camille (avatar-camille-4.png)
+  camille2: avatarCamille2, // Camille sur scène
+  camille3: avatarCamille3, // Camille en soirée chic
+  
+  // Marie - Utilisatrice actuelle: Femme de 25 ans, brune, développeuse moderne
+  marie1: avatarMarie1, // Photo principale de Marie
+  marie2: avatarMarie2, // Marie au travail (bureau/café)
+  marie3: avatarMarie3, // Marie en sortie décontractée
+  
+  // Julien - Homme créatif de 28 ans, cheveux mi-longs, style artistique
+  julien1: avatarJulien4, // Photo principale de Julien (avatar-julien-4.png)
+  julien2: avatarJulien2, // Julien avec matériel de tournage
+  julien3: avatarJulien3, // Julien à vélo dans la nature
 };
 
 // Base de données des profils d'utilisateurs
@@ -61,7 +115,7 @@ export const profiles: UserProfile[] = [
     name: 'Emma',
     age: 26,
     bio: '🎨 Artiste passionnée | 🏃‍♀️ Running addict | 🍕 Food lover\nÀ la recherche d\'aventures et de beaux moments à partager !',
-    photos: [ProfileImages.user2, ProfileImages.user2, ProfileImages.user2],
+    photos: [ProfileImages.emma1, ProfileImages.emma2, ProfileImages.emma3],
     location: 'Paris, France',
     distance: 2,
     interests: ['Art', 'Sport', 'Voyage', 'Cuisine', 'Photographie'],
@@ -76,7 +130,7 @@ export const profiles: UserProfile[] = [
     name: 'Lucas',
     age: 29,
     bio: '💻 Développeur | 🎮 Gamer | 🎸 Musicien amateur\nToujours partant pour découvrir de nouveaux endroits !',
-    photos: [ProfileImages.user3, ProfileImages.user3, ProfileImages.user3],
+    photos: [ProfileImages.lucas1, ProfileImages.lucas2, ProfileImages.lucas3],
     location: 'Lyon, France',
     distance: 5,
     interests: ['Technologie', 'Musique', 'Gaming', 'Cinéma', 'Randonnée'],
@@ -92,7 +146,7 @@ export const profiles: UserProfile[] = [
     name: 'Sophie',
     age: 24,
     bio: '📚 Étudiante en médecine | 🧘‍♀️ Yoga enthusiast | 🌱 Végétarienne\nPassionnée par les discussions profondes et les couchers de soleil.',
-    photos: [ProfileImages.user4, ProfileImages.user4, ProfileImages.user4],
+    photos: [ProfileImages.sophie1, ProfileImages.sophie2, ProfileImages.sophie3],
     location: 'Marseille, France',
     distance: 8,
     interests: ['Médecine', 'Yoga', 'Nature', 'Lecture', 'Bien-être'],
@@ -107,7 +161,7 @@ export const profiles: UserProfile[] = [
     name: 'Antoine',
     age: 31,
     bio: '🏋️‍♂️ Coach sportif | 🌍 Voyageur | 📸 Photographe\nLa vie est une aventure, vivons-la ensemble !',
-    photos: [ProfileImages.user5, ProfileImages.user5, ProfileImages.user5],
+    photos: [ProfileImages.antoine1, ProfileImages.antoine2, ProfileImages.antoine3],
     location: 'Nice, France',
     distance: 12,
     interests: ['Sport', 'Voyage', 'Photographie', 'Nature', 'Aventure'],
@@ -123,7 +177,7 @@ export const profiles: UserProfile[] = [
     name: 'Camille',
     age: 27,
     bio: '🎭 Actrice | 🍷 Œnologue amateur | 🎵 Mélomane\nJ\'adore les soirées entre amis et les discussions passionnantes.',
-    photos: [ProfileImages.user6, ProfileImages.user6, ProfileImages.user6],
+    photos: [ProfileImages.camille1, ProfileImages.camille2, ProfileImages.camille3],
     location: 'Bordeaux, France',
     distance: 15,
     interests: ['Théâtre', 'Vin', 'Musique', 'Culture', 'Gastronomie'],
@@ -131,6 +185,22 @@ export const profiles: UserProfile[] = [
     education: 'Conservatoire',
     height: 172,
     isOnline: true,
+    verified: true,
+  },
+  {
+    id: '6',
+    name: 'Julien',
+    age: 28,
+    bio: '🎬 Réalisateur | 🚴‍♂️ Cycliste passionné | ☕ Amateur de café\nÀ la recherche de nouvelles aventures créatives et romantiques !',
+    photos: [ProfileImages.julien1, ProfileImages.julien2, ProfileImages.julien3],
+    location: 'Toulouse, France',
+    distance: 18,
+    interests: ['Cinéma', 'Cyclisme', 'Café', 'Art', 'Nature'],
+    occupation: 'Réalisateur',
+    education: 'École de Cinéma',
+    height: 177,
+    isOnline: false,
+    lastSeen: 'Il y a 3h',
     verified: true,
   },
 ];
@@ -141,7 +211,7 @@ export const currentUser: UserProfile = {
   name: 'Marie',
   age: 25,
   bio: '🌟 Développeuse passionnée | ☕ Coffee addict | 🎯 Toujours motivée\nÀ la recherche de quelqu\'un qui partage mes passions !',
-  photos: [ProfileImages.currentUser, ProfileImages.currentUser, ProfileImages.currentUser],
+  photos: [ProfileImages.marie1, ProfileImages.marie2, ProfileImages.marie3],
   location: 'Paris, France',
   distance: 0,
   interests: ['Technologie', 'Café', 'Innovation', 'Sport', 'Voyage'],

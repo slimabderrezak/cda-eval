@@ -1,89 +1,111 @@
-import { matches, profiles } from '@/constants/dating';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { profiles, UserProfile } from '@/constants/dating';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useState } from 'react';
 import {
+  Animated,
   Dimensions,
   Image,
-  ScrollView,
+  PanResponder,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+interface ProfileCardProps {
+  profile: UserProfile;
+  onSwipeLeft: () => void;
+  onSwipeRight: () => void;
+}
+
+const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onSwipeLeft, onSwipeRight }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const nextImage = () => {
+    if (currentImageIndex < profile.photos.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const pan = React.useRef(new Animated.ValueXY()).current;
+
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx > 120) {
+          onSwipeRight();
+        } else if (gestureState.dx < -120) {
+          onSwipeLeft();
+        }
+        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+      },
+    }),
+  ).current;
+
+  return (
+    <Animated.View
+      style={[styles.card, { transform: [{ translateX: pan.x }, { translateY: pan.y }] }]}
+      {...panResponder.panHandlers}
+    >
+      <View style={styles.imageContainer}>
+        <TouchableOpacity 
+          style={[styles.imageSection, styles.leftSection]} 
+          onPress={prevImage}
+          activeOpacity={1}
+        />
+        <TouchableOpacity 
+          style={[styles.imageSection, styles.rightSection]} 
+          onPress={nextImage}
+          activeOpacity={1}
+        />
+        <Image source={profile.photos[currentImageIndex]} style={styles.image} />
+        
+        <View style={styles.imageIndicators}>
+          {profile.photos.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.indicator,
+                { backgroundColor: index === currentImageIndex ? '#fff' : 'rgba(255,255,255,0.4)' }
+              ]}
+            />
+          ))}
+        </View>
+
+        <View style={styles.profileInfo}>
+          <Text style={styles.profileName}>{profile.name}, {profile.age}</Text>
+          <Text style={styles.profileBio}>{profile.bio}</Text>
+        </View>
+      </View>
+    </Animated.View>
+  );
+};
 
 export default function HomeScreen() {
-  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-  const [likedProfiles, setLikedProfiles] = useState<number[]>([]);
-  const [passedProfiles, setPassedProfiles] = useState<number[]>([]);
-  const router = useRouter();
-
-  const currentProfile = profiles[currentProfileIndex];
+  const colorScheme = useColorScheme();
 
   const handleLike = () => {
-    if (currentProfile) {
-      setLikedProfiles([...likedProfiles, currentProfile.id]);
-      nextProfile();
-    }
+    console.log('Liked!');
   };
 
   const handlePass = () => {
-    if (currentProfile) {
-      setPassedProfiles([...passedProfiles, currentProfile.id]);
-      nextProfile();
-    }
+    console.log('Passed!');
   };
 
-  const nextProfile = () => {
-    if (currentProfileIndex < profiles.length - 1) {
-      setCurrentProfileIndex(currentProfileIndex + 1);
-    }
-  };
-
-  const handleSuperLike = () => {
-    if (currentProfile) {
-      setLikedProfiles([...likedProfiles, currentProfile.id]);
-      nextProfile();
-    }
-  };
-
-  if (currentProfileIndex >= profiles.length) {
-    return (
-      <View style={styles.container}>
-        {/* Header with Yoove Logo */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>yoo</Text>
-              <Text style={styles.logoHeart}>💕</Text>
-              <Text style={styles.logoText}>e</Text>
-            </View>
-            <Text style={styles.tagline}>L'amour à portée de clic</Text>
-          </View>
-        </View>
-
-        <View style={styles.noProfilesContainer}>
-          <Ionicons name="heart-outline" size={80} color="#FF6B6B" />
-          <Text style={styles.noProfilesTitle}>Plus de profils pour le moment</Text>
-          <Text style={styles.noProfilesSubtitle}>
-            Revenez bientôt pour découvrir de nouveaux profils !
-          </Text>
-          <TouchableOpacity 
-            style={styles.exploreButton}
-            onPress={() => router.push('/(tabs)/shop')}
-          >
-            <Text style={styles.exploreButtonText}>Explorer les profils</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
+  const profileToShow = profiles[5];
+  
   return (
     <View style={styles.container}>
-      {/* Header with Yoove Logo */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <View style={styles.logo}>
@@ -95,71 +117,19 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.cardContainer}>
-          <View style={styles.card}>
-            <Image 
-              source={{ uri: currentProfile.image }} 
-              style={styles.profileImage}
-            />
-            
-            <View style={styles.profileInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.profileName}>
-                  {currentProfile.name}, {currentProfile.age}
-                </Text>
-                <View style={styles.verifiedBadge}>
-                  <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                </View>
-              </View>
-              
-              <View style={styles.locationRow}>
-                <Ionicons name="location-outline" size={16} color="#666" />
-                <Text style={styles.profileLocation}>{currentProfile.location}</Text>
-              </View>
-              
-              <Text style={styles.profileBio}>{currentProfile.bio}</Text>
-              
-              <View style={styles.interestsContainer}>
-                {currentProfile.interests.slice(0, 3).map((interest, index) => (
-                  <View key={index} style={styles.interestTag}>
-                    <Text style={styles.interestText}>{interest}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.passButton} onPress={handlePass}>
-            <Ionicons name="close" size={30} color="#FF6B6B" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.superLikeButton} onPress={handleSuperLike}>
-            <Ionicons name="star" size={25} color="#4FC3F7" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.likeButton} onPress={handleLike}>
-            <Ionicons name="heart" size={30} color="#4CAF50" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{likedProfiles.length}</Text>
-            <Text style={styles.statLabel}>Likes</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{matches.length}</Text>
-            <Text style={styles.statLabel}>Matches</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{passedProfiles.length}</Text>
-            <Text style={styles.statLabel}>Passes</Text>
-          </View>
-        </View>
-      </ScrollView>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ProfileCard 
+          profile={profileToShow}
+          onSwipeLeft={handlePass}
+          onSwipeRight={handleLike}
+        />
+        <Text style={{color: '#FF6B6B', fontSize: 16, marginTop: 20, fontWeight: 'bold'}}>
+          🎬 {profileToShow.name} - {profileToShow.occupation}
+        </Text>
+        <Text style={{color: '#666', fontSize: 12, marginTop: 5}}>
+          📍 {profileToShow.location} • {profileToShow.distance}km
+        </Text>
+      </View>
     </View>
   );
 }
@@ -199,211 +169,84 @@ const styles = StyleSheet.create({
     color: '#FF6B6B',
   },
   logoHeart: {
-    fontSize: 32,
+    fontSize: 24,
     marginHorizontal: 2,
   },
   tagline: {
     fontSize: 14,
-    color: '#666',
+    color: '#FF8A95',
     fontStyle: 'italic',
   },
-  content: {
-    flex: 1,
-  },
-  cardContainer: {
-    padding: 20,
-  },
   card: {
-    backgroundColor: '#FFF0F1',
-    borderRadius: 16,
-    overflow: 'hidden',
+    width: screenWidth * 0.85,
+    height: screenHeight * 0.65,
+    borderRadius: 20,
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
     elevation: 8,
   },
-  profileImage: {
+  imageContainer: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  imageSection: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '50%',
+    zIndex: 2,
+  },
+  leftSection: {
+    left: 0,
+  },
+  rightSection: {
+    right: 0,
+  },
+  image: {
     width: '100%',
-    height: 400,
+    height: '100%',
     resizeMode: 'cover',
   },
-  profileInfo: {
-    padding: 20,
-  },
-  nameRow: {
+  imageIndicators: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    right: 10,
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  indicator: {
+    width: 30,
+    height: 3,
+    marginHorizontal: 2,
+    borderRadius: 2,
+  },
+  profileInfo: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
   },
   profileName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
-    flex: 1,
-  },
-  verifiedBadge: {
-    marginLeft: 8,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  profileLocation: {
-    fontSize: 16,
-    color: '#666',
-    marginLeft: 4,
+    color: '#fff',
+    marginBottom: 5,
   },
   profileBio: {
     fontSize: 16,
-    color: '#333',
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  interestsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  interestTag: {
-    backgroundColor: '#FFE4E1',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FF6B6B',
-  },
-  interestText: {
-    color: '#FF6B6B',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 30,
-    gap: 30,
-  },
-  passButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFF0F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#FF6B6B',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: '#FF6B6B',
-  },
-  superLikeButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#FFF0F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#4FC3F7',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: '#4FC3F7',
-  },
-  likeButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFF0F1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#4CAF50',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 40,
-    paddingVertical: 20,
-    backgroundColor: '#FFF0F1',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FF6B6B',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  noProfilesContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  noProfilesTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  noProfilesSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  exploreButton: {
-    backgroundColor: '#FF6B6B',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  exploreButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#fff',
+    opacity: 0.9,
   },
 });

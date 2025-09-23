@@ -1,0 +1,3 @@
+// Cette image doit être remplacée par la photo de la belle femme aux cheveux bruns
+// que l'utilisateur a fournie en attachement
+export default require('./avatar-marie-old.png');

@@ -62,3 +62,16 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+/**
+ * Structure du projet
+ *
+ * CDA-eval/
+ * ├── app/               # 📱 Écrans de l'application
+ * ├── components/        # 🧩 Composants réutilisables (gardés)
+ * ├── constants/         # 🔒 Constantes et données (gardés)
+ * ├── hooks/            # 🎣 Hooks personnalisés (gardés)
+ * ├── utils/            # 🛠️ Utilitaires (gardés)
+ * ├── assets/           # 📁 Images et ressources (gardés)
+ * └── scripts/          # 📜 Scripts de build (gardés)
+ */

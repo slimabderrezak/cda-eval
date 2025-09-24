@@ -41,6 +41,21 @@ export interface Conversation {
   isActive: boolean;
 }
 
+export interface ProfileView {
+  id: string;
+  viewerId: string;
+  viewedProfileId: string;
+  timestamp: Date;
+  isRead: boolean;
+  viewerProfile: UserProfile;
+}
+
+export interface WhoViewedMe {
+  views: ProfileView[];
+  totalViews: number;
+  newViews: number;
+}
+
 // Images pour les profils - Chaque avatar représente une personne unique et distincte
 // Images d'avatar réelles + nouvelle image Gemini
 const avatarGemini = require('@/assets/images/Gemini_Generated_Image_7vhmpa7vhmpa7vhm.png'); // Nouvelle image générée
@@ -321,6 +336,91 @@ export const getProfileById = (id: string): UserProfile | undefined => {
 // Fonction pour obtenir les conversations de l'utilisateur
 export const getUserConversations = (userId: string = 'current'): Conversation[] => {
   return conversations.filter(conv => conv.participants.includes(userId));
+};
+
+// Données simulées pour "Qui m'a vu"
+export const profileViews: ProfileView[] = [
+  {
+    id: '1',
+    viewerId: '1',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // Il y a 2 heures
+    isRead: false,
+    viewerProfile: profiles[0], // Emma
+  },
+  {
+    id: '2',
+    viewerId: '2',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // Il y a 5 heures
+    isRead: false,
+    viewerProfile: profiles[1], // Lucas
+  },
+  {
+    id: '3',
+    viewerId: '3',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // Il y a 8 heures
+    isRead: true,
+    viewerProfile: profiles[2], // Sophie
+  },
+  {
+    id: '4',
+    viewerId: '4',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000), // Il y a 12 heures
+    isRead: false,
+    viewerProfile: profiles[3], // Antoine
+  },
+  {
+    id: '5',
+    viewerId: '5',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Il y a 1 jour
+    isRead: true,
+    viewerProfile: profiles[4], // Camille
+  },
+  {
+    id: '6',
+    viewerId: '6',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // Il y a 2 jours
+    isRead: true,
+    viewerProfile: profiles[5], // Julien
+  },
+  {
+    id: '7',
+    viewerId: '7',
+    viewedProfileId: 'current',
+    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Il y a 3 jours
+    isRead: false,
+    viewerProfile: profiles[6], // Marie
+  },
+];
+
+// Fonction pour obtenir qui a vu mon profil
+export const getWhoViewedMe = (userId: string = 'current'): WhoViewedMe => {
+  const views = profileViews
+    .filter(view => view.viewedProfileId === userId)
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  
+  const newViews = views.filter(view => !view.isRead).length;
+  
+  return {
+    views,
+    totalViews: views.length,
+    newViews,
+  };
+};
+
+// Fonction pour marquer les vues comme lues
+export const markViewsAsRead = (viewIds: string[]) => {
+  viewIds.forEach(id => {
+    const view = profileViews.find(v => v.id === id);
+    if (view) {
+      view.isRead = true;
+    }
+  });
 };
 
 // Fonction pour calculer l'âge à partir d'une date de naissance
